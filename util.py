@@ -40,7 +40,9 @@ def register_httpd(httpd):
 
 
 def close_app():
+    logging.debug("Close app..")
     for _http_server in _http_servers:
+        logging.debug("Stop http server..")
         _http_server.stop_server()
 
     for widget in QApplication.topLevelWidgets():
@@ -67,7 +69,7 @@ def init_logging_config(debug=False):
     if debug:
         logger.setLevel(logging.DEBUG)
     else:
-        logger.setLevel(logging.INFO)
+        logger.setLevel(logging.debug)
     # Create a stream handler (or any other handler)
     handler = logging.StreamHandler()
     # Set the custom formatter for the handler

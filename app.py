@@ -2,7 +2,8 @@ import signal
 import sys, os
 import threading
 
-from PyQt5.QtCore import QTimer
+from PyQt5 import QtCore
+from PyQt5.QtCore import QTimer, QEvent
 from PyQt5.QtWidgets import QApplication
 
 import backend_server
@@ -18,7 +19,8 @@ class App:
 
     def main(self, debug=False, remote=False):
         app = QApplication(sys.argv)
-        os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] = '--disable-pinch --disable-gpu --overscroll-history-navigation=0'
+        os.environ[
+            'QTWEBENGINE_CHROMIUM_FLAGS'] = '--disk-cache-dir=/dev/null --disk-cache-size=1 --disable-pinch --disable-gpu --overscroll-history-navigation=0'
 
         if remote:
             backend_server.PORT = 3000

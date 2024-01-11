@@ -22,8 +22,9 @@ class HTTPServer:
         self.httpd = None
 
     def _run_server(self):
+        util.register_httpd(self)
         with socketserver.TCPServer(("", self.port), Handler) as httpd:
-            logging.info(f"http serving at port: {self.port}")
+            logging.debug(f"http serving at port: {self.port}")
             self.httpd = httpd
             httpd.serve_forever()
 
@@ -33,6 +34,6 @@ class HTTPServer:
         return thread
 
     def stop_server(self):
-        logging.info("http server stopped.")
-        self.httpd.shutdown()
-        self.httpd.server_close()
+        logging.debug("http server stopped.")
+        if self.httpd is not None:
+            self.httpd.shutdown()

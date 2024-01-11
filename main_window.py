@@ -8,9 +8,10 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QNativeGestureEvent
 from PyQt5.QtWebChannel import QWebChannel
 from PyQt5.QtCore import QUrl, QObject, pyqtSlot, Qt, QEvent
-from PyQt5.QtWidgets import QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings, QWebEngineScript
+from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings, QWebEngineScript, \
+    QWebEngineProfile
 
 import backend_server
 import util
@@ -35,15 +36,25 @@ class JavascriptHandler(QObject):
 
     @pyqtSlot(str)
     def log(self, text):
-        logging.info(f"python receive JS: {text}")
+        logging.debug(f"python receive JS: {text}")
 
-    @pyqtSlot()
+    @pyqtSlot(result=str)
     def openFile(self):
         file_path = self.window.open_file()
-        js_code = f"""
-        window.setFilePath({json.dumps(file_path)})
-        """
-        self.window.run_js_code(js_code)
+        return file_path
+
+    @pyqtSlot(str, str, result=int)
+    def showMessageBox(self, title, message):
+        logging.debug(f"python receive JS: {message}")
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setWindowTitle(f"{title}")
+        msg_box.setText(f"{message}")
+        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        # Display the message box and capture the response
+        response = msg_box.exec_()
+        return response
 
 
 class CustomWebEnginePage(QWebEnginePage):
@@ -121,7 +132,7 @@ class MainWindow(SavePositionWindow):
         options = QFileDialog.Options()
         file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Excel Files (*.xlsx *xls)", options=options)
 
-        logging.info(f"open file {file_path}")
+        logging.debug(f"open file {file_path}")
         if file_path is not None:
             return file_path  # Or handle the file path as needed
         return ""
@@ -138,15 +149,7 @@ class MainWindow(SavePositionWindow):
             width = self.width()
         if height is None:
             height = self.height()
-
         logging.debug(f"Resize ace editor to: {width}x{height}")
-        js_code = f"""
-        if (page){{
-            page.resizeTheWindowSize({width},{height})
-        }}
-        """
-        # Execute the JavaScript code
-        # self.run_js_code(js_code)
 
     def run_js_code(self, js_code):
         self.browser.page().runJavaScript(js_code)
@@ -167,4 +170,5 @@ class MainWindow(SavePositionWindow):
 
     def closeEvent(self, event):
         self.browser.close()
+        util.close_app()
         super().closeEvent(event)
