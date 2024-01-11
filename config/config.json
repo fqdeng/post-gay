@@ -1,0 +1,22 @@
+{
+    "MainWindow": {
+        "size": [
+            446,
+            378
+        ],
+        "position": [
+            -1756,
+            457
+        ]
+    },
+    "SavePositionWindow": {
+        "size": [
+            1155,
+            640
+        ],
+        "position": [
+            -1302,
+            407
+        ]
+    }
+}
