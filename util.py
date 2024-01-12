@@ -1,13 +1,14 @@
 from __future__ import annotations
 import contextlib
-import io, os
+import io
+import os
 import logging
 import platform
 from typing import TYPE_CHECKING
 
-from PyQt6 import QtCore, QtGui
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication
+from PySide6 import QtCore, QtGui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication
 
 if TYPE_CHECKING:
     from backend_server import HTTPServer

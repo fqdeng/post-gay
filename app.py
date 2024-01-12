@@ -1,17 +1,15 @@
+import os
 import signal
-import sys, os
-import threading
-from random import random, Random
+import sys
+from random import Random
 
-from PyQt6 import QtCore
-from PyQt6.QtCore import QTimer, QEvent
-from PyQt6.QtWidgets import QApplication
+import fire
+from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QApplication
 
-import backend_server
 import util
 from backend_server import HTTPServer
 from main_window import MainWindow
-import fire
 
 
 class App:

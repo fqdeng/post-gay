@@ -1,20 +1,15 @@
 from __future__ import annotations
 
-import json
 import logging
-import os
-from typing import Union
 
-from PyQt6 import QtCore
-from PyQt6.QtGui import QNativeGestureEvent
-from PyQt6.QtWebChannel import QWebChannel
-from PyQt6.QtCore import QUrl, QObject, pyqtSlot, Qt, QEvent
-from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
-from PyQt6.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+from PySide6 import QtCore
+from PySide6.QtCore import QUrl, QObject,  Qt, QEvent
+from PySide6.QtWebChannel import QWebChannel
+from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
+from PySide6.QtWebEngineWidgets import QWebEngineView
+from PySide6.QtWidgets import QFileDialog, QMessageBox
+from PySide6.QtCore import QObject, Slot, Signal
 
-from PyQt6.QtWebEngineWidgets import QWebEngineView
-
-import backend_server
 import util
 from common_window import SavePositionWindow
 
@@ -35,28 +30,19 @@ class JavascriptHandler(QObject):
         super().__init__()
         self.window = window
 
-    @pyqtSlot(str)
+    @Slot(str)
     def log(self, text):
         logging.debug(f"python receive JS: {text}")
 
-    @pyqtSlot(str, result=str)
+    @Slot(str, result=str)
     def openFile(self, file_types: str):
         file_path = self.window.open_file(file_types=file_types)
         return file_path
 
-    @pyqtSlot(int, str, str, int, result=int)
+    @Slot(int, str, str, int, result=int)
     def showMessageBox(self, icon, title, message, buttons):
         logging.debug(f"python receive JS: {message}")
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Icon(icon))
-        msg_box.setWindowTitle(f"{title}")
-        msg_box.setText(f"{message}")
-        # made javascript have capability to set buttons
-        msg_box.setStandardButtons(QMessageBox.StandardButton(buttons))
-
-        # Display the message box and capture the response
-        response = msg_box.exec()
-        return response
+        return QMessageBox.question(self.window, title, message, QMessageBox.StandardButton(buttons))
 
 
 class CustomWebEnginePage(QWebEnginePage):
