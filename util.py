@@ -5,9 +5,9 @@ import logging
 import platform
 from typing import TYPE_CHECKING
 
-from PyQt5 import QtCore, QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication
+from PyQt6 import QtCore, QtGui
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication
 
 if TYPE_CHECKING:
     from backend_server import HTTPServer
@@ -44,22 +44,25 @@ def close_app():
     for _http_server in _http_servers:
         logging.debug("Stop http server..")
         _http_server.stop_server()
-
-    for widget in QApplication.topLevelWidgets():
-        widget.close()
     instance = QApplication.instance()
     if instance is not None:
         instance.quit()
 
 
 def signal_handler(sig, frame):
-    close_app()
+    for widget in QApplication.topLevelWidgets():
+        widget.close()
+
+
+def format_message(msg):
+    return msg.replace('\n', '\\n').replace("\r", "\\r").replace("\t", "\\t").replace("\b", "\\b") \
+        .replace("\f", "\\f").replace("\v", "\\v").replace("\a", "\\a").replace("\e", "\\e")
 
 
 class CustomFormatter(logging.Formatter):
     def format(self, record):
         # Replace newlines in the message
-        record.msg = record.msg.replace('\n', '\\n')
+        record.msg = format_message(record.msg)
         return super().format(record)
 
 
@@ -69,7 +72,7 @@ def init_logging_config(debug=False):
     if debug:
         logger.setLevel(logging.DEBUG)
     else:
-        logger.setLevel(logging.debug)
+        logger.setLevel(logging.INFO)
     # Create a stream handler (or any other handler)
     handler = logging.StreamHandler()
     # Set the custom formatter for the handler

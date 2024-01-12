@@ -1,6 +1,6 @@
 import sys
 import json
-from PyQt5.QtWidgets import QApplication, QMainWindow
+from PyQt6.QtWidgets import QApplication, QMainWindow
 
 _config_file_path = './config/config.json'
 

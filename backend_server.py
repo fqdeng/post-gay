@@ -5,7 +5,6 @@ import threading
 
 import util
 
-PORT = 8740
 DIRECTORY = "../../javascript/post-gay-web/build"
 
 
@@ -15,16 +14,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 class HTTPServer:
-    def __init__(self, directory=DIRECTORY, port=PORT):
+    def __init__(self, directory=DIRECTORY, port=None):
         self.port = port
         global DIRECTORY
         DIRECTORY = directory
-        self.httpd = None
+        self.httpd: socketserver.TCPServer = None
 
     def _run_server(self):
         util.register_httpd(self)
-        with socketserver.TCPServer(("", self.port), Handler) as httpd:
-            logging.debug(f"http serving at port: {self.port}")
+        ip = "127.0.0.1"
+        with socketserver.TCPServer((ip, self.port), Handler) as httpd:
+            logging.debug(f"http serving at port: http://{ip}:{self.port}")
             self.httpd = httpd
             httpd.serve_forever()
 
@@ -34,6 +34,6 @@ class HTTPServer:
         return thread
 
     def stop_server(self):
-        logging.debug("http server stopped.")
         if self.httpd is not None:
-            self.httpd.shutdown()
+            logging.debug("http server stopped.")
+            self.httpd.server_close()

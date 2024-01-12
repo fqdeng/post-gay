@@ -1,10 +1,11 @@
 import signal
 import sys, os
 import threading
+from random import random, Random
 
-from PyQt5 import QtCore
-from PyQt5.QtCore import QTimer, QEvent
-from PyQt5.QtWidgets import QApplication
+from PyQt6 import QtCore
+from PyQt6.QtCore import QTimer, QEvent
+from PyQt6.QtWidgets import QApplication
 
 import backend_server
 import util
@@ -19,17 +20,19 @@ class App:
 
     def main(self, debug=False, remote=False):
         app = QApplication(sys.argv)
-        os.environ[
-            'QTWEBENGINE_CHROMIUM_FLAGS'] = '--disk-cache-dir=/dev/null --disk-cache-size=1 --disable-pinch --disable-gpu --overscroll-history-navigation=0'
+        os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] \
+            = ('--disk-cache-dir=/dev/null --disk-cache-size=1 --disable-pinch'
+               '--overscroll-history-navigation=0 --sand-box')
 
         if remote:
-            backend_server.PORT = 3000
+            port = 3000
         else:
-            HTTPServer().start_server()
+            port = Random().randint(1024, 3098)
+            HTTPServer(port=port).start_server()
 
         util.windows_hidpi_support()
         util.init_logging_config(debug=debug)
-        self.main_window = MainWindow(debug=debug)
+        self.main_window = MainWindow(debug=debug, port=port)
         self.main_window.show()
 
         timer = QTimer()
@@ -38,7 +41,7 @@ class App:
         # Register the signal handler for Ctrl+C
         signal.signal(signal.SIGINT, util.signal_handler)
 
-        sys.exit(app.exec_())
+        sys.exit(app.exec())
 
 
 if __name__ == '__main__':

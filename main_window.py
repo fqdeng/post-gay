@@ -3,15 +3,16 @@ from __future__ import annotations
 import json
 import logging
 import os
+from typing import Union
 
-from PyQt5 import QtCore
-from PyQt5.QtGui import QNativeGestureEvent
-from PyQt5.QtWebChannel import QWebChannel
-from PyQt5.QtCore import QUrl, QObject, pyqtSlot, Qt, QEvent
-from PyQt5.QtWidgets import QMainWindow, QFileDialog, QMessageBox
+from PyQt6 import QtCore
+from PyQt6.QtGui import QNativeGestureEvent
+from PyQt6.QtWebChannel import QWebChannel
+from PyQt6.QtCore import QUrl, QObject, pyqtSlot, Qt, QEvent
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
+from PyQt6.QtWidgets import QMainWindow, QFileDialog, QMessageBox
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView, QWebEnginePage, QWebEngineSettings, QWebEngineScript, \
-    QWebEngineProfile
+from PyQt6.QtWebEngineWidgets import QWebEngineView
 
 import backend_server
 import util
@@ -23,7 +24,7 @@ real_index = "./config/main/build/index.html"
 class TouchEventFilter(QObject):
     def eventFilter(self, obj, event):
         # Filter out all touch events
-        if event.type() in [QEvent.NativeGesture]:
+        if event.type() in [QEvent.Type.NativeGesture]:
             return True  # Ignore the NativeGesture the disable the QWebEngineView zoom behavior
         # logging.debug(f"Event: {event.type()}")
         return super(TouchEventFilter, self).eventFilter(obj, event)
@@ -38,28 +39,29 @@ class JavascriptHandler(QObject):
     def log(self, text):
         logging.debug(f"python receive JS: {text}")
 
-    @pyqtSlot(result=str)
-    def openFile(self):
-        file_path = self.window.open_file()
+    @pyqtSlot(str, result=str)
+    def openFile(self, file_types: str):
+        file_path = self.window.open_file(file_types=file_types)
         return file_path
 
-    @pyqtSlot(str, str, result=int)
-    def showMessageBox(self, title, message):
+    @pyqtSlot(int, str, str, int, result=int)
+    def showMessageBox(self, icon, title, message, buttons):
         logging.debug(f"python receive JS: {message}")
         msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setIcon(QMessageBox.Icon(icon))
         msg_box.setWindowTitle(f"{title}")
         msg_box.setText(f"{message}")
-        msg_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        # made javascript have capability to set buttons
+        msg_box.setStandardButtons(QMessageBox.StandardButton(buttons))
 
         # Display the message box and capture the response
-        response = msg_box.exec_()
+        response = msg_box.exec()
         return response
 
 
 class CustomWebEnginePage(QWebEnginePage):
     def javaScriptConsoleMessage(self, level, message, line, sourceID):
-        logging.debug(f"JS: {message} (Line: {line} Source: {sourceID})")
+        logging.debug(f"JS: {util.format_message(message)} (Line: {line} Source: {sourceID})")
 
 
 class DisableContextMenuEngineView(QWebEngineView):
@@ -73,7 +75,7 @@ class DisableContextMenuEngineView(QWebEngineView):
 
 
 class MainWindow(SavePositionWindow):
-    def __init__(self, debug=False):
+    def __init__(self, port=None, debug=False):
         super().__init__()
         self.dev_tools_view = None
         self.dev_tools_window = None
@@ -81,11 +83,12 @@ class MainWindow(SavePositionWindow):
         self.touch_event_filter = TouchEventFilter()
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Main", "Main"))
+        self.port = port
         self.initUI()
         # self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowTitleHint)
 
     def keyPressEvent(self, event):
-        if self._debug and event.key() == Qt.Key_F12:
+        if self._debug and event.key() == Qt.Key.Key_F12:
             self.show_dev_tools()
         else:
             super().keyPressEvent(event)
@@ -110,7 +113,7 @@ class MainWindow(SavePositionWindow):
         self.setCentralWidget(self.browser)
 
         self.init_script()
-        self.browser.load(QUrl(f"http://localhost:{backend_server.PORT}"))
+        self.browser.load(QUrl(f"http://localhost:{self.port}"))
 
         self.browser.focusProxy().installEventFilter(self.touch_event_filter)
 
@@ -122,18 +125,18 @@ class MainWindow(SavePositionWindow):
         # Create a QWebEngineScript object
         script = QWebEngineScript()
         script.setSourceCode(js_code)
-        script.setInjectionPoint(QWebEngineScript.DocumentCreation)
-        script.setWorldId(QWebEngineScript.MainWorld)
+        script.setInjectionPoint(QWebEngineScript.InjectionPoint.DocumentCreation)
+        script.setWorldId(QWebEngineScript.ScriptWorldId.MainWorld)
         # Add the script to the web engine
         self.browser.page().scripts().insert(script)
 
-    def open_file(self):
+    def open_file(self, file_types: str = "All Files (*)"):
         # Open a file dialog and set the filter to .xlsx files
-        options = QFileDialog.Options()
-        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", "Excel Files (*.xlsx *xls)", options=options)
+        options = QFileDialog.Option(0)  # Creating an instance of QFileDialog.Option
+        file_path, _ = QFileDialog.getOpenFileName(self, "Open File", "", file_types, options=options)
 
         logging.debug(f"open file {file_path}")
-        if file_path is not None:
+        if file_path:
             return file_path  # Or handle the file path as needed
         return ""
 
