@@ -105,3 +105,4 @@ def windows_hidpi_support():
     if platform.system() == "Windows":
         QtCore.QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
         QtGui.QGuiApplication.setAttribute(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+

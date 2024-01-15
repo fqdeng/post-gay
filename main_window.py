@@ -3,12 +3,12 @@ from __future__ import annotations
 import logging
 
 from PySide6 import QtCore
-from PySide6.QtCore import QUrl, QObject,  Qt, QEvent
+from PySide6.QtCore import QObject, Slot
+from PySide6.QtCore import QUrl, Qt, QEvent
 from PySide6.QtWebChannel import QWebChannel
 from PySide6.QtWebEngineCore import QWebEnginePage, QWebEngineScript
 from PySide6.QtWebEngineWidgets import QWebEngineView
 from PySide6.QtWidgets import QFileDialog, QMessageBox
-from PySide6.QtCore import QObject, Slot, Signal
 
 import util
 from common_window import SavePositionWindow
@@ -43,6 +43,24 @@ class JavascriptHandler(QObject):
     def showMessageBox(self, icon, title, message, buttons):
         logging.debug(f"python receive JS: {message}")
         return QMessageBox.question(self.window, title, message, QMessageBox.StandardButton(buttons))
+
+    # Override the full file
+    @Slot(str, str, result=int)
+    def saveFile(self, file_path, file_content):
+        logging.debug(f"python receive JS: {file_path}")
+        logging.debug(f"python receive JS: {file_content}")
+        with open(file_path, 'w') as file:
+            file.seek(0)  # Reset file position to the beginning.
+            file.write(file_content)
+            file.truncate()  # Remove remaining part of old data
+        return 0
+
+    # Read file
+    @Slot(str, result=str)
+    def readFile(self, file_path):
+        logging.debug(f"python receive JS: {file_path}")
+        with open(file_path, 'r') as file:
+            return file.read()
 
 
 class CustomWebEnginePage(QWebEnginePage):

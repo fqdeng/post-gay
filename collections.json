@@ -1,0 +1,53 @@
+[
+  {
+    "title": "collection 0",
+    "key": "0-0",
+    "isLeaf": false,
+    "children": [
+      {
+        "title": "c46845a6-e748-408c-b8d7-469e494c7b57",
+        "key": "c46845a6-e748-408c-b8d7-469e494c7b57",
+        "isLeaf": true
+      },
+      {
+        "title": "f790008f-0b02-48dc-8bea-7c23907df0f0",
+        "key": "f790008f-0b02-48dc-8bea-7c23907df0f0",
+        "isLeaf": true
+      }
+    ]
+  },
+  {
+    "title": "collection 1",
+    "key": "0-1",
+    "isLeaf": false,
+    "children": [
+      {
+        "title": "55c3aa43-5585-40ee-9511-3fdc99406328",
+        "key": "55c3aa43-5585-40ee-9511-3fdc99406328",
+        "isLeaf": true
+      },
+      {
+        "title": "574adc17-4c31-490a-ad24-86b3bae2c758",
+        "key": "574adc17-4c31-490a-ad24-86b3bae2c758",
+        "isLeaf": true
+      }
+    ]
+  },
+  {
+    "title": "collection 2",
+    "key": "0-2",
+    "isLeaf": false,
+    "children": [
+      {
+        "title": "7aa71050-fb02-4cc4-9c78-d3de3310eff8",
+        "key": "7aa71050-fb02-4cc4-9c78-d3de3310eff8",
+        "isLeaf": true
+      },
+      {
+        "title": "f17df1d9-ca8f-48ac-9bdf-b6923a183a7a",
+        "key": "f17df1d9-ca8f-48ac-9bdf-b6923a183a7a",
+        "isLeaf": true
+      }
+    ]
+  }
+]
