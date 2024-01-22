@@ -19,7 +19,7 @@ class App:
     def main(self, debug=False, remote=False):
         app = QApplication(sys.argv)
         os.environ['QTWEBENGINE_CHROMIUM_FLAGS'] \
-            = ('--disk-cache-dir=/dev/null --disk-cache-size=1 --disable-pinch'
+            = ('--disable-web-security --disk-cache-dir=/dev/null --disk-cache-size=1 --disable-pinch'
                '--overscroll-history-navigation=0 --sand-box')
 
         if remote:
